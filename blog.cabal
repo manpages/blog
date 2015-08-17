@@ -3,7 +3,7 @@ Version:            0.0.1
 License:            BSD2
 License-File:       LICENSE
 Author:             Jonn Mostovoy
-Synopsis:           Reflective configuration library
+Synopsis:           CLI to instantiate/publish hakyll posts
 Description:
             A turtle script to instantiate hakyll posts remotely
 
@@ -11,18 +11,27 @@ Cabal-Version:  >=1.10
 Build-Type:     Simple
 
 Library
+
   Build-Depends: base,
                  turtle,
-                 haskonf
+                 haskonf,
+                 mtl,
+                 containers,
+                 text
 
   Hs-Source-Dirs:      src
   GHC-Options:       -Wall
   Exposed-Modules:    Blog
 
 Executable blog
+
   Build-Depends: base,
                  turtle,
-                 haskonf
+                 haskonf,
+                 mtl,
+                 containers,
+                 text
+
   Hs-source-dirs:   src
   GHC-Options:    -Wall
   Main-is:      Main.hs
