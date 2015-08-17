@@ -17,7 +17,8 @@ Library
                  haskonf,
                  mtl,
                  containers,
-                 text
+                 text,
+                 time
 
   Hs-Source-Dirs:      src
   GHC-Options:       -Wall
@@ -30,7 +31,8 @@ Executable blog
                  haskonf,
                  mtl,
                  containers,
-                 text
+                 text,
+                 time
 
   Hs-source-dirs:   src
   GHC-Options:    -Wall
