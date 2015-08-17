@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Blog () where
+module Blog (post, stamp, defaultPathFn, knownCategory, rsyncTup, rsyncSend) where
 
 import           Control.Monad.Reader
 import           Control.Monad.State
@@ -45,9 +45,14 @@ data BlogCfg = BlogCfg { connection :: TextText                        -- ^ Desc
 type Blog = ReaderT BlogCfg IO ExitCode
 
 -- |
+-- With BlogCfg run ReaderT
+post :: BlogCfg -> Path -> BlogCat -> Blog
+post x y z = runReaderT (postR y z) x
+
+-- |
 -- Based on our ReaderT, posts an entry to the blog, if category is ok
-post :: Blog -> Path -> BlogCat -> Blog
-post b x c = do
+postR :: Path -> BlogCat -> Blog
+postR x c = do
   (BlogCfg { connection = con
            , blog_spec  = spec
            , pathFn     = f}) <- ask
