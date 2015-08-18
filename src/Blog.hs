@@ -35,8 +35,8 @@ type TextTexts   = Map Text [Text]
 -- | Function that generates path for blog post
 type PathGenerator = BlogCat -> Path -> Path -> UTCTime -> Path
 -- | Configuration to be asked from Reader
-data BlogCfg = BlogCfg { connection :: TextText                             -- ^ Describes how to connect to the blog, for now specifies rsync args
-                       , blog_spec  :: TextTexts                            -- ^ Describes the categories (and, later, tags) allowed in the blog
+data BlogCfg = BlogCfg { connection :: TextText      -- ^ Describes how to connect to the blog, for now specifies rsync args
+                       , blog_spec  :: TextTexts     -- ^ Describes the categories (and, later, tags) allowed in the blog
                        , pathFn     :: PathGenerator -- ^ Builds remote path based on category, local path and remote base path
                        }
 
