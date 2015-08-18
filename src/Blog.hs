@@ -1,17 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Blog (post, stamp, defaultPathFn, knownCategory, rsyncTup, rsyncSend) where
+module Blog (Blog, post, stamp, defaultPathFn, knownCategory, rsyncTup, rsyncSend,
+             TextText, TextTexts, BlogCat, BlogCfg(..), Path) where
 
 import           Control.Monad.Reader
-import           Control.Monad.State
-import           Data.Map             (Map (..))
+import           Data.Map             (Map)
 import qualified Data.Map             as M
 import           Data.Maybe           (fromJust)
-import           Data.Text            (pack, unpack)
+import           Data.Text            (pack)
 import qualified Data.Text            as T
 import           Data.Time.Clock
 import           Data.Time.Format
-import           Turtle
+import           Turtle               hiding (f, x)
 
 -- | Currently we use stringly-typed values everywhere
 -- TODO: smart constructors, better types
@@ -32,10 +32,12 @@ type BlogCat     = Text
 type TextText    = Map Text Text
 -- | Text -> [Text] configuration part
 type TextTexts   = Map Text [Text]
+-- | Function that generates path for blog post
+type PathGenerator = BlogCat -> Path -> Path -> UTCTime -> Path
 -- | Configuration to be asked from Reader
-data BlogCfg = BlogCfg { connection :: TextText                        -- ^ Describes how to connect to the blog, for now specifies rsync args
-                       , blog_spec  :: TextTexts                       -- ^ Describes the categories (and, later, tags) allowed in the blog
-                       , pathFn     :: BlogCat -> Path -> Path -> Path -- ^ Builds remote path based on category, local path and remote base path
+data BlogCfg = BlogCfg { connection :: TextText                             -- ^ Describes how to connect to the blog, for now specifies rsync args
+                       , blog_spec  :: TextTexts                            -- ^ Describes the categories (and, later, tags) allowed in the blog
+                       , pathFn     :: PathGenerator -- ^ Builds remote path based on category, local path and remote base path
                        }
 
 -- |
@@ -46,26 +48,27 @@ type Blog = ReaderT BlogCfg IO ExitCode
 
 -- |
 -- With BlogCfg run ReaderT
-post :: BlogCfg -> Path -> BlogCat -> Blog
+post :: BlogCfg -> Path -> BlogCat -> IO ExitCode
 post x y z = runReaderT (postR y z) x
 
 -- |
 -- Based on our ReaderT, posts an entry to the blog, if category is ok
 postR :: Path -> BlogCat -> Blog
-postR x c = do
+postR thing category = do
   (BlogCfg { connection = con
            , blog_spec  = spec
            , pathFn     = f}) <- ask
-  let (cmd, rem, pth) = rsyncTup con
-  tau <- lift $ getCurrentTime
-  if knownCategory c spec
-    then lift $ rsyncSend cmd x rem $ f c x pth
+  let (cmd, remote, pth) = rsyncTup con
+  liftIO $ putStrLn show (category, spec)
+  tau <- liftIO $ getCurrentTime
+  if knownCategory category spec
+    then liftIO $ rsyncSend cmd thing remote $ f category thing pth tau
     else return $ ExitFailure 5
 
 -- | Default path function (works with my blog :))
 defaultPathFn :: FormatTime t => BlogCat -> Path -> Path -> t -> Path
-defaultPathFn "draft" l r t = r <^> slash "drafts"             <^> (slash $ stamp l t)
-defaultPathFn c       l r t = r <^> slash "posts"  <^> slash c <^> (slash $ stamp l t)
+defaultPathFn "draft"  l r t = r <^> slash "drafts"                    <^> (slash $ stamp l t)
+defaultPathFn category l r t = r <^> slash "posts"  <^> slash category <^> (slash $ stamp l t)
 
 -- | Prefix a filename with a default hakyll timestamp
 stamp :: FormatTime t => Text -> t -> Text
@@ -77,6 +80,7 @@ rsyncSend ssh file remote path =
   she $ "rsync -Pave" <^> q ssh <^> sq file <^> spc remote <^> cq path <^> ".markdown"
 
 -- | Looks into blog specification and tells if argument is a known category
+knownCategory :: BlogCat -> TextTexts -> Bool
 knownCategory x spec = x `elem` xs
   where
     xs = fromJust $ M.lookup "BlogCat" spec

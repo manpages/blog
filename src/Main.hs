@@ -1,26 +1,33 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main (main) where
 
 import           Data.Map           (fromList)
+import           Data.Text          (pack)
+import           Data.Time.Clock
 import           System.Environment (getArgs)
+import           Turtle             (ExitCode (..))
 
 import           Blog
 
-c :: TextText
-c = fromList [ ("Cmd",    "ssh -p 21984")
+cc :: TextText
+cc = fromList [ ("Cmd",    "ssh -p 21984")
              , ("Remote", "memorici.de")
              , ("Path",   "github/lue") ]
 
-b :: TextTexts
-b = fromList [ ("BlogCat", ["draft", "ru", "life", "tech"]) ]
+bb :: TextTexts
+bb = fromList [ ("BlogCat", ["draft", "ru", "life", "tech"]) ]
 
-f :: BlogCat -> Path -> Path -> Path
-f "tech" = defaultPathFn "universe"
-f x      = defaultPathFn x
+ff :: BlogCat -> Path -> Path -> UTCTime -> Path
+ff "tech" = defaultPathFn "universe"
+ff x      = defaultPathFn x
 
 cfg :: BlogCfg
-cfg = BlogCfg { connection = c, blog_spec = b, pathFn = f }
+cfg = BlogCfg { connection = cc, blog_spec = bb, pathFn = ff }
 
-main :: IO Blog
+main :: IO ()
 main = do
-  [file, cat]  <- getArgs
-  lift $ post cfg file cat
+  args  <- getArgs
+  let [file, cat] = map pack args
+  ok <- post cfg file cat
+  putStrLn $ show ok
