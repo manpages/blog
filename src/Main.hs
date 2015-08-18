@@ -6,7 +6,6 @@ import           Data.Map           (fromList)
 import           Data.Text          (pack)
 import           Data.Time.Clock
 import           System.Environment (getArgs)
-import           Turtle             (ExitCode (..))
 
 import           Blog
 

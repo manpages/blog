@@ -77,7 +77,7 @@ bn = pack . takeBaseName . unpack
 
 -- | Prefix a filename with a default hakyll timestamp
 stamp :: FormatTime t => Text -> t -> Text
-stamp x tau = (pack $ formatTime defaultTimeLocale "%Y-%m-%d" tau) <^> x
+stamp x tau = (pack $ formatTime defaultTimeLocale "%Y-%m-%d" tau) <^> dash x
 
 -- | Rsync a file using Turtle's ``shell`` function.
 rsyncSend :: Cmd -> File -> Remote -> Path -> IO ExitCode
@@ -101,6 +101,10 @@ q = T.append "\"" . flip T.append "\""
 -- | Prefix a string with a slash
 slash :: Text -> Text
 slash = T.append "/"
+
+-- | Prefix a string with a dash
+dash :: Text -> Text
+dash = T.append "-"
 
 -- | Prefix a string with a space
 spc :: Text -> Text
