@@ -10,6 +10,8 @@ Description:
 Cabal-Version:  >=1.10
 Build-Type:     Simple
 
+Data-Files: blog.hs
+
 Library
 
   Build-Depends: base,
@@ -24,6 +26,7 @@ Library
   Hs-Source-Dirs:      src
   GHC-Options:       -Wall
   Exposed-Modules:    Blog
+  Other-Modules:      Paths_blog
 
 Executable blog
 
@@ -34,8 +37,10 @@ Executable blog
                  containers,
                  text,
                  time,
+                 blog,
                  filepath
 
   Hs-source-dirs:   src
   GHC-Options:    -Wall
   Main-is:      Main.hs
+  Other-Modules:      Paths_blog

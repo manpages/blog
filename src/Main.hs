@@ -2,31 +2,25 @@
 
 module Main (main) where
 
-import           Data.Map           (fromList)
-import           Data.Text          (pack)
-import           Data.Time.Format
-import           System.Environment (getArgs)
+import           Control.Monad      (unless)
+import           Haskonf            (appDir, binName, buildDo, defaultFlagsVerbose, copyReal,
+                                     doesConfigExist, runFrom)
+import           Paths_blog
+import           System.Environment (getArgs, getProgName)
 
-import           Blog
-
-cc :: TextText
-cc = fromList [ ("Cmd",    "ssh -p 21984")
-             , ("Remote", "memorici.de")
-             , ("Path",   "github/lue") ]
-
-bb :: TextTexts
-bb = fromList [ ("BlogCat", ["draft", "ru", "life", "tech"]) ]
-
-ff :: PathGenerator t
-ff "tech" = defaultPathFn "universe"
-ff x      = defaultPathFn x
-
-cfg :: BlogCfg
-cfg = BlogCfg { connection = cc, blog_spec = bb, pathFn = ff }
+pname :: String
+pname = "blog"
 
 main :: IO ()
 main = do
-  args  <- getArgs
-  let [file, cat] = map pack args
-  ok <- post cfg file cat
-  putStrLn $ show ok
+  real <- getDataFileName $ pname ++ ".hs"
+  doesConfigExist pname >>= (flip unless) (copyReal pname real)
+  args <- getArgs
+  _ <- buildDo pname (Just $ defaultFlagsVerbose pname) False
+  launch args
+
+launch :: [String] -> IO ()
+launch args = do
+  dir  <- appDir  pname
+  me   <- getProgName
+  runFrom me dir (binName pname) args
