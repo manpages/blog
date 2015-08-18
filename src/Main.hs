@@ -4,7 +4,7 @@ module Main (main) where
 
 import           Data.Map           (fromList)
 import           Data.Text          (pack)
-import           Data.Time.Clock
+import           Data.Time.Format
 import           System.Environment (getArgs)
 
 import           Blog
@@ -17,7 +17,7 @@ cc = fromList [ ("Cmd",    "ssh -p 21984")
 bb :: TextTexts
 bb = fromList [ ("BlogCat", ["draft", "ru", "life", "tech"]) ]
 
-ff :: BlogCat -> Path -> Path -> UTCTime -> Path
+ff :: PathGenerator t
 ff "tech" = defaultPathFn "universe"
 ff x      = defaultPathFn x
 

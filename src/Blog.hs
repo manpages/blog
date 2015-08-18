@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes        #-}
 
 module Blog (Blog, post, stamp, defaultPathFn, knownCategory, rsyncTup, rsyncSend,
-             TextText, TextTexts, BlogCat, BlogCfg(..), Path) where
+             TextText, TextTexts, BlogCat, BlogCfg(..), Path, PathGenerator) where
 
 import           Control.Monad.Reader
 import           Data.Map             (Map)
@@ -34,11 +35,11 @@ type TextText    = Map Text Text
 -- | Text -> [Text] configuration part
 type TextTexts   = Map Text [Text]
 -- | Function that generates path for blog post
-type PathGenerator = BlogCat -> Path -> Path -> UTCTime -> Path
+type PathGenerator t = FormatTime t => BlogCat -> Path -> Path -> t -> Path
 -- | Configuration to be asked from Reader
 data BlogCfg = BlogCfg { connection :: TextText      -- ^ Describes how to connect to the blog, for now specifies rsync args
                        , blog_spec  :: TextTexts     -- ^ Describes the categories (and, later, tags) allowed in the blog
-                       , pathFn     :: PathGenerator -- ^ Builds remote path based on category, local path and remote base path
+                       , pathFn     :: forall t . PathGenerator t -- ^ Builds remote path based on category, local path and remote base path
                        }
 
 -- |
@@ -67,7 +68,7 @@ postR thing category = do
     else return $ ExitFailure 5
 
 -- | Default path function (works with my blog :))
-defaultPathFn :: FormatTime t => BlogCat -> Path -> Path -> t -> Path
+defaultPathFn :: PathGenerator t
 defaultPathFn "draft"  l r t = r <^> slash "drafts"                    <^> (slash $ stamp (bn l) t)
 defaultPathFn category l r t = r <^> slash "posts"  <^> slash category <^> (slash $ stamp (bn l) t)
 
