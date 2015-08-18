@@ -18,7 +18,8 @@ Library
                  mtl,
                  containers,
                  text,
-                 time
+                 time,
+                 filepath
 
   Hs-Source-Dirs:      src
   GHC-Options:       -Wall
@@ -32,7 +33,8 @@ Executable blog
                  mtl,
                  containers,
                  text,
-                 time
+                 time,
+                 filepath
 
   Hs-source-dirs:   src
   GHC-Options:    -Wall

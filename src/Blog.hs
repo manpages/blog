@@ -7,10 +7,11 @@ import           Control.Monad.Reader
 import           Data.Map             (Map)
 import qualified Data.Map             as M
 import           Data.Maybe           (fromJust)
-import           Data.Text            (pack)
+import           Data.Text            (pack, unpack)
 import qualified Data.Text            as T
 import           Data.Time.Clock
 import           Data.Time.Format
+import           System.FilePath      (takeBaseName)
 import           Turtle               hiding (f, x)
 
 -- | Currently we use stringly-typed values everywhere
@@ -59,7 +60,7 @@ postR thing category = do
            , blog_spec  = spec
            , pathFn     = f}) <- ask
   let (cmd, remote, pth) = rsyncTup con
-  liftIO $ putStrLn show (category, spec)
+  liftIO $ putStrLn $ show (category, spec)
   tau <- liftIO $ getCurrentTime
   if knownCategory category spec
     then liftIO $ rsyncSend cmd thing remote $ f category thing pth tau
@@ -67,12 +68,16 @@ postR thing category = do
 
 -- | Default path function (works with my blog :))
 defaultPathFn :: FormatTime t => BlogCat -> Path -> Path -> t -> Path
-defaultPathFn "draft"  l r t = r <^> slash "drafts"                    <^> (slash $ stamp l t)
-defaultPathFn category l r t = r <^> slash "posts"  <^> slash category <^> (slash $ stamp l t)
+defaultPathFn "draft"  l r t = r <^> slash "drafts"                    <^> (slash $ stamp (bn l) t)
+defaultPathFn category l r t = r <^> slash "posts"  <^> slash category <^> (slash $ stamp (bn l) t)
+
+-- | Take basename of a filePath represented as Text
+bn :: Text -> Text
+bn = pack . takeBaseName . unpack
 
 -- | Prefix a filename with a default hakyll timestamp
 stamp :: FormatTime t => Text -> t -> Text
-stamp x tau = x <^> (pack $ formatTime defaultTimeLocale "%Y-%m-%d" tau)
+stamp x tau = (pack $ formatTime defaultTimeLocale "%Y-%m-%d" tau) <^> x
 
 -- | Rsync a file using Turtle's ``shell`` function.
 rsyncSend :: Cmd -> File -> Remote -> Path -> IO ExitCode

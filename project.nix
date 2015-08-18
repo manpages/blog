@@ -1,5 +1,5 @@
-{ mkDerivation, base, containers, haskonf, mtl, stdenv, text, time
-, turtle
+{ mkDerivation, base, containers, filepath, haskonf, mtl, stdenv
+, text, time, turtle
 }:
 mkDerivation {
   pname = "blog";
@@ -7,7 +7,9 @@ mkDerivation {
   src = ./.;
   isLibrary = true;
   isExecutable = true;
-  buildDepends = [ base containers haskonf mtl text time turtle ];
+  buildDepends = [
+    base containers filepath haskonf mtl text time turtle
+  ];
   description = "CLI to instantiate/publish hakyll posts";
   license = stdenv.lib.licenses.bsd2;
 }
