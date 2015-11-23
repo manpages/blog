@@ -15,12 +15,15 @@ Data-Files: blog.hs
 Library
 
   Build-Depends: base,
+                 directory,
+                 extensible-exceptions,
                  turtle,
-                 haskonf,
                  mtl,
                  containers,
                  text,
                  time,
+                 process,
+                 unix,
                  filepath
 
   Hs-Source-Dirs:      src
@@ -31,13 +34,16 @@ Library
 Executable blog
 
   Build-Depends: base,
+                 directory,
                  turtle,
-                 haskonf,
                  mtl,
+                 extensible-exceptions,
                  containers,
                  text,
                  time,
                  blog,
+                 process,
+                 unix,
                  filepath
 
   Hs-source-dirs:   src
