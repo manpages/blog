@@ -29,7 +29,9 @@ Library
   Hs-Source-Dirs:      src
   GHC-Options:       -Wall
   Exposed-Modules:    Blog
-  Other-Modules:      Paths_blog
+  Other-Modules:      Paths_blog,
+                      Haskonf,
+                      System.Environment.FindBin
 
 Executable blog
 
